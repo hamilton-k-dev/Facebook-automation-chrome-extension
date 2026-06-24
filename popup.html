@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FB Auto Publisher</title>
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    body { width: 360px; min-height: 400px; margin: 0; }
+  </style>
+</head>
+<body>
+  <div class="popup-header">
+    <div class="popup-logo">📢 FB Auto Publisher</div>
+    <div class="toggle-wrapper">
+      <label class="toggle" title="Enable/Disable automation">
+        <input type="checkbox" id="toggleEnabled">
+        <span class="toggle-slider"></span>
+      </label>
+    </div>
+  </div>
+
+  <div class="popup-content">
+    <!-- Status -->
+    <div class="card mb-4" style="padding: 12px;">
+      <div style="display:flex; align-items:center; justify-content:space-between;">
+        <div>
+          <span class="status-dot inactive" id="statusDot"></span>
+          <span id="statusText" style="font-size:13px;font-weight:500;">Disabled</span>
+        </div>
+        <div id="nextPostTime" class="text-sm text-muted"></div>
+      </div>
+    </div>
+
+    <!-- Stats -->
+    <div class="popup-stat-row">
+      <div class="popup-stat">
+        <div class="popup-stat-value" id="statTodayPosts">0</div>
+        <div class="popup-stat-label">Posts today</div>
+      </div>
+      <div class="popup-stat">
+        <div class="popup-stat-value" id="statTotalPosts">0</div>
+        <div class="popup-stat-label">Total posts</div>
+      </div>
+      <div class="popup-stat">
+        <div class="popup-stat-value" id="statGroups">0</div>
+        <div class="popup-stat-label">Active groups</div>
+      </div>
+      <div class="popup-stat">
+        <div class="popup-stat-value" id="statContents">0</div>
+        <div class="popup-stat-label">Contents</div>
+      </div>
+    </div>
+
+    <!-- Last post -->
+    <div id="lastPostInfo" class="card mb-4" style="padding:10px; display:none;">
+      <div class="text-sm text-muted">Last post:</div>
+      <div id="lastPostText" style="font-size:12px; margin-top:4px;"></div>
+    </div>
+
+    <!-- Quick actions -->
+    <div class="popup-actions">
+      <button class="popup-action-btn" id="btnManualPost">
+        <span class="icon">🚀</span>
+        <span>Post now</span>
+      </button>
+      <a class="popup-action-btn" href="dashboard.html" target="_blank">
+        <span class="icon">📊</span>
+        <span>Dashboard</span>
+      </a>
+      <a class="popup-action-btn" href="options.html" target="_blank">
+        <span class="icon">⚙️</span>
+        <span>Settings & Contents</span>
+      </a>
+      <a class="popup-action-btn" href="logs.html" target="_blank">
+        <span class="icon">📋</span>
+        <span>Activity Log</span>
+      </a>
+    </div>
+  </div>
+
+  <div class="toast-container" id="toastContainer"></div>
+  <script src="popup.js" type="module"></script>
+</body>
+</html>

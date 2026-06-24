@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard — FB Auto Publisher</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div class="app-layout">
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <div class="sidebar-logo-icon">FB</div>
+      <div class="sidebar-logo-text">Auto Publisher</div>
+    </div>
+    <nav class="sidebar-nav">
+      <a href="dashboard.html" class="nav-item active" data-page="dashboard">
+        <span class="nav-icon">📊</span> Dashboard
+      </a>
+      <a href="options.html" class="nav-item" data-page="options">
+        <span class="nav-icon">📝</span> Contents
+      </a>
+      <a href="groups.html" class="nav-item" data-page="groups">
+        <span class="nav-icon">👥</span> Groups
+      </a>
+      <a href="settings.html" class="nav-item" data-page="settings">
+        <span class="nav-icon">⚙️</span> Settings
+      </a>
+      <a href="logs.html" class="nav-item" data-page="logs">
+        <span class="nav-icon">📋</span> Logs
+      </a>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="toggle-wrapper">
+        <label class="toggle" id="sidebarToggleLabel">
+          <input type="checkbox" id="sidebarToggle">
+          <span class="toggle-slider"></span>
+        </label>
+        <span id="sidebarToggleText" style="color:var(--sidebar-text);font-size:13px;">Disabled</span>
+      </div>
+    </div>
+  </aside>
+
+  <main class="main-content">
+    <div class="topbar">
+      <div class="topbar-title">Dashboard</div>
+      <div class="topbar-actions">
+        <button class="btn btn-ghost btn-sm" id="btnTheme" title="Toggle theme">🌙</button>
+        <button class="btn btn-primary btn-sm" id="btnManualPost">🚀 Post now</button>
+      </div>
+    </div>
+
+    <div class="page-content">
+      <!-- Stats Grid -->
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-icon">👥</div>
+          <div class="stat-value" id="statTotalGroups">0</div>
+          <div class="stat-label">Total groups</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">✅</div>
+          <div class="stat-value" id="statActiveGroups">0</div>
+          <div class="stat-label">Active groups</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">🚫</div>
+          <div class="stat-value" id="statExcludedGroups">0</div>
+          <div class="stat-label">Excluded groups</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">📅</div>
+          <div class="stat-value" id="statTodayPosts">0</div>
+          <div class="stat-label">Posts today</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">📢</div>
+          <div class="stat-value" id="statTotalPosts">0</div>
+          <div class="stat-label">Total posts</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">📝</div>
+          <div class="stat-value" id="statContents">0</div>
+          <div class="stat-label">Available contents</div>
+        </div>
+      </div>
+
+      <!-- Two columns -->
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px;">
+        <!-- Status -->
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">Automation status</span>
+          </div>
+          <div>
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;">
+              <span class="status-dot inactive" id="bigStatusDot"></span>
+              <span id="bigStatusText" style="font-size:15px;font-weight:600;">Disabled</span>
+            </div>
+            <div class="form-group">
+              <div class="form-label">Next post</div>
+              <div id="nextPostDisplay" style="font-size:14px;font-weight:500;">—</div>
+            </div>
+            <div class="form-group">
+              <div class="form-label">Last post</div>
+              <div id="lastPostDisplay" style="font-size:14px;">—</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Active settings -->
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">Active configuration</span>
+            <a href="settings.html" class="btn btn-ghost btn-sm">Edit</a>
+          </div>
+          <div id="settingsSummary"></div>
+        </div>
+      </div>
+
+      <!-- Recent logs -->
+      <div class="card mt-4">
+        <div class="card-header">
+          <span class="card-title">Recent activity</span>
+          <a href="logs.html" class="btn btn-ghost btn-sm">View all</a>
+        </div>
+        <div id="recentLogs"></div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<div class="toast-container" id="toastContainer"></div>
+<script src="dashboard.js" type="module"></script>
+</body>
+</html>

@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Settings — FB Auto Publisher</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div class="app-layout">
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <div class="sidebar-logo-icon">FB</div>
+      <div class="sidebar-logo-text">Auto Publisher</div>
+    </div>
+    <nav class="sidebar-nav">
+      <a href="dashboard.html" class="nav-item">📊 Dashboard</a>
+      <a href="options.html" class="nav-item">📝 Contents</a>
+      <a href="groups.html" class="nav-item">👥 Groups</a>
+      <a href="settings.html" class="nav-item active">⚙️ Settings</a>
+      <a href="logs.html" class="nav-item">📋 Logs</a>
+    </nav>
+  </aside>
+
+  <main class="main-content">
+    <div class="topbar">
+      <div class="topbar-title">Publishing settings</div>
+      <div class="topbar-actions">
+        <button class="btn btn-ghost btn-sm" id="btnTheme">🌙</button>
+        <button class="btn btn-primary" id="btnSaveSettings">💾 Save</button>
+      </div>
+    </div>
+
+    <div class="page-content">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
+
+        <!-- Automation -->
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">⚡ Automation</span>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Enable automation</label>
+            <div class="toggle-wrapper" style="margin-top:4px;">
+              <label class="toggle">
+                <input type="checkbox" id="settingEnabled">
+                <span class="toggle-slider"></span>
+              </label>
+              <span id="enabledLabel" style="font-size:13px;">Disabled</span>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Posts per day per group</label>
+            <input type="number" id="settingPostsPerDay" class="form-control" min="1" max="20" value="1">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Repeat cooldown (days)</label>
+            <input type="number" id="settingCooldownDays" class="form-control" min="1" max="30" value="1">
+            <div class="text-sm text-muted mt-2">Avoid reposting the same content in a group for X days</div>
+          </div>
+        </div>
+
+        <!-- Facebook Page -->
+        <div class="card" style="grid-column:1/-1;">
+          <div class="card-header">
+            <span class="card-title">📄 Post as a Facebook Page</span>
+            <div class="toggle-wrapper">
+              <label class="toggle">
+                <input type="checkbox" id="settingPageMode">
+                <span class="toggle-slider"></span>
+              </label>
+              <span id="pageModeLabel" style="font-size:13px;">Disabled (personal profile)</span>
+            </div>
+          </div>
+
+          <div id="pageFields" style="display:none;">
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">Page name</label>
+                <input type="text" id="settingPageName" class="form-control" placeholder="e.g. My Awesome Page">
+                <div class="text-sm text-muted mt-2">Exact name as shown in the Facebook account switcher menu</div>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Page ID or username</label>
+                <input type="text" id="settingPageId" class="form-control" placeholder="e.g. 123456789 or myawesomepage">
+                <div class="text-sm text-muted mt-2">Visible in the URL: facebook.com/<strong>username</strong></div>
+              </div>
+            </div>
+            <div style="background:var(--primary-light);border:1px solid var(--primary);border-radius:6px;padding:12px;font-size:13px;line-height:1.8;">
+              <strong>How it works:</strong><br>
+              Before each post, the extension briefly opens Facebook, clicks the account menu in the top-right,
+              selects your Page, then posts to the group.<br>
+              After posting, it automatically switches back to your personal profile.
+            </div>
+          </div>
+        </div>
+
+        <!-- Timing -->
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">⏰ Timing</span>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Minimum delay (minutes)</label>
+              <input type="number" id="settingDelayMin" class="form-control" min="1" max="240" value="20">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Maximum delay (minutes)</label>
+              <input type="number" id="settingDelayMax" class="form-control" min="1" max="480" value="40">
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Start hour</label>
+              <input type="number" id="settingStartHour" class="form-control" min="0" max="23" value="8">
+              <div class="text-sm text-muted mt-2">e.g. 8 = 08:00 AM</div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">End hour</label>
+              <input type="number" id="settingEndHour" class="form-control" min="1" max="24" value="22">
+              <div class="text-sm text-muted mt-2">e.g. 22 = 10:00 PM</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Settings preview -->
+      <div class="card mt-4" style="background:var(--primary-light);border-color:var(--primary);">
+        <div class="card-header" style="border-color:var(--primary);margin-bottom:8px;">
+          <span class="card-title">📋 Configuration summary</span>
+        </div>
+        <div id="settingsPreview" style="font-size:14px;line-height:2;"></div>
+      </div>
+
+      <!-- Danger zone -->
+      <div class="card mt-4" style="border-color:var(--danger);">
+        <div class="card-header" style="border-color:var(--danger);">
+          <span class="card-title" style="color:var(--danger);">⚠️ Danger zone</span>
+        </div>
+        <div style="display:flex;gap:12px;flex-wrap:wrap;">
+          <button class="btn btn-danger" id="btnResetSettings">Reset settings</button>
+          <button class="btn btn-danger" id="btnClearLogs">Clear all logs</button>
+          <button class="btn btn-danger" id="btnClearHistory">Clear post history</button>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<div class="toast-container" id="toastContainer"></div>
+<script src="settings.js" type="module"></script>
+</body>
+</html>

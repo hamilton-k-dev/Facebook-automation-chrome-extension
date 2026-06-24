@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Groups — FB Auto Publisher</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div class="app-layout">
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <div class="sidebar-logo-icon">FB</div>
+      <div class="sidebar-logo-text">Auto Publisher</div>
+    </div>
+    <nav class="sidebar-nav">
+      <a href="dashboard.html" class="nav-item">📊 Dashboard</a>
+      <a href="options.html" class="nav-item">📝 Contents</a>
+      <a href="groups.html" class="nav-item active">👥 Groups</a>
+      <a href="settings.html" class="nav-item">⚙️ Settings</a>
+      <a href="logs.html" class="nav-item">📋 Logs</a>
+    </nav>
+  </aside>
+
+  <main class="main-content">
+    <div class="topbar">
+      <div class="topbar-title">Manage groups</div>
+      <div class="topbar-actions">
+        <button class="btn btn-ghost btn-sm" id="btnTheme">🌙</button>
+        <button class="btn btn-ghost" id="btnSelectAll">✅ Select all</button>
+        <button class="btn btn-primary" id="btnFetchGroups">🔄 Detect groups</button>
+      </div>
+    </div>
+
+    <div class="page-content">
+      <!-- Search & filters -->
+      <div class="card mb-4" style="padding:14px;">
+        <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;">
+          <input type="text" id="searchGroups" class="form-control" style="flex:1;min-width:200px;"
+            placeholder="🔍 Search a group...">
+          <div class="tabs" style="margin:0;border:none;">
+            <button class="tab-btn active" data-filter="all">All</button>
+            <button class="tab-btn" data-filter="selected">Active</button>
+            <button class="tab-btn" data-filter="excluded">Excluded</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Detection banner -->
+      <div id="detectBanner" class="card mb-4" style="background:var(--primary-light);border-color:var(--primary);display:none;">
+        <div style="display:flex;align-items:center;gap:12px;">
+          <div style="font-size:24px;">⏳</div>
+          <div>
+            <div style="font-weight:600;">Detecting groups...</div>
+            <div class="text-sm text-muted">Opening your Facebook groups feed...</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Manual add -->
+      <div class="card mb-4">
+        <div class="card-header">
+          <span class="card-title">Add manually</span>
+        </div>
+        <div style="display:flex;gap:10px;">
+          <input type="text" id="manualGroupId" class="form-control" placeholder="Group ID or Facebook URL">
+          <input type="text" id="manualGroupName" class="form-control" placeholder="Group name">
+          <button class="btn btn-primary" id="btnAddManual" style="white-space:nowrap;">➕ Add</button>
+        </div>
+      </div>
+
+      <!-- Groups list -->
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">My groups</span>
+          <span id="groupCountBadge" class="badge badge-success">0 groups</span>
+        </div>
+        <div id="groupList" class="group-list"></div>
+        <div id="emptyGroups" class="empty-state" style="display:none;">
+          <div class="empty-state-icon">👥</div>
+          <div class="empty-state-text">No groups yet. Click "Detect groups" or add them manually.</div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<div class="toast-container" id="toastContainer"></div>
+<script src="groups.js" type="module"></script>
+</body>
+</html>
