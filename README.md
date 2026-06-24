@@ -13,6 +13,7 @@
 FB Group Auto Publisher is a Chrome extension that schedules and automatically sends posts to your Facebook groups using your existing browser session. It supports both your personal profile and your Facebook Pages.
 
 **What it does:**
+
 - Automatically publishes to your groups on a configurable schedule
 - Randomly rotates up to 5 different contents (text + image)
 - Respects random delays between posts for natural behavior
@@ -22,45 +23,50 @@ FB Group Auto Publisher is a Chrome extension that schedules and automatically s
 
 ## Features
 
-| Feature | Detail |
-|---|---|
-| **Multiple contents** | Up to 5 text + image entries, randomly selected |
-| **Smart scheduling** | Configurable random delay, active hours, posts per day |
-| **Facebook Page mode** | Auto-switches to your Page before posting |
-| **Anti-repetition** | Per-group cooldown, content rotation |
-| **Group detection** | Automatic scraping + manual ID entry |
-| **Dashboard** | Real-time stats, status, next scheduled post |
-| **Activity log** | Full history, filters, CSV export |
-| **Light / dark theme** | Adaptive interface |
+| Feature                | Detail                                                 |
+| ---------------------- | ------------------------------------------------------ |
+| **Multiple contents**  | Up to 5 text + image entries, randomly selected        |
+| **Smart scheduling**   | Configurable random delay, active hours, posts per day |
+| **Facebook Page mode** | Auto-switches to your Page before posting              |
+| **Anti-repetition**    | Per-group cooldown, content rotation                   |
+| **Group detection**    | Automatic scraping + manual ID entry                   |
+| **Dashboard**          | Real-time stats, status, next scheduled post           |
+| **Activity log**       | Full history, filters, CSV export                      |
+| **Light / dark theme** | Adaptive interface                                     |
 
 ---
 
 ## Quick Installation
 
 ### Requirements
+
 - Google Chrome (version 88+)
 - Logged in to Facebook in Chrome
 
 ### Steps
 
 **1. Download the project**
+
 ```bash
-git clone https://github.com/your-username/fb-group-auto-publisher.git
-cd fb-group-auto-publisher
+git clone https://github.com/hamilton-k-dev/facebook-automation-chrome-extension.git
+cd facebook-automation-chrome-extension
 ```
 
-**2. Generate icons** *(first install only)*
+**2. Generate icons** _(first install only)_
+
 ```bash
 bash generate_icons.sh
 ```
 
 **3. Load in Chrome**
+
 1. Open `chrome://extensions/`
 2. Enable **Developer mode** (toggle in the top-right corner)
 3. Click **"Load unpacked"**
 4. Select the project folder
 
 **4. Pin the extension**
+
 - Click the puzzle icon 🧩 in Chrome → pin **FB Auto Publisher**
 
 ---
@@ -68,17 +74,21 @@ bash generate_icons.sh
 ## Getting Started in 4 Steps
 
 ### 1. Create your contents
+
 `Extension icon` → **Settings & Contents** → **New content**
 
 Create up to 5 contents, each with a text body and an optional image.
 
 ### 2. Add your groups
+
 **Dashboard** → **Groups** → **Detect groups**
 
 Or add them manually using the group ID (found in the Facebook URL: `facebook.com/groups/`**`YOUR_ID`**).
 
 ### 3. Configure the schedule
+
 **Settings** → Fill in:
+
 ```
 Posts per day per group : 1
 Minimum delay          : 20 min
@@ -88,6 +98,7 @@ End hour               : 22
 ```
 
 ### 4. Enable automation
+
 Toggle **ON** in the popup or dashboard → automation starts immediately.
 
 ---
@@ -135,14 +146,14 @@ fb-group-auto-publisher/
 
 ## Permissions
 
-| Permission | Reason |
-|---|---|
-| `storage` | Save contents, groups, and settings locally |
-| `alarms` | Trigger scheduled publications |
-| `tabs` | Open Facebook groups in the background |
-| `scripting` | Inject the publishing script into FB pages |
-| `notifications` | Success / error alerts |
-| `https://www.facebook.com/*` | Access group pages |
+| Permission                   | Reason                                      |
+| ---------------------------- | ------------------------------------------- |
+| `storage`                    | Save contents, groups, and settings locally |
+| `alarms`                     | Trigger scheduled publications              |
+| `tabs`                       | Open Facebook groups in the background      |
+| `scripting`                  | Inject the publishing script into FB pages  |
+| `notifications`              | Success / error alerts                      |
+| `https://www.facebook.com/*` | Access group pages                          |
 
 ---
 
