@@ -59,6 +59,7 @@ function renderLogs() {
         <th>Content</th>
         <th>Status</th>
         <th>Message</th>
+        <th>Link</th>
       </tr></thead>
       <tbody>
         ${pageData.map(log => `
@@ -68,6 +69,11 @@ function renderLogs() {
             <td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${escapeHtml(log.content)}">${escapeHtml(log.content || '—')}</td>
             <td><span class="badge badge-${log.status === 'success' ? 'success' : 'error'}">${log.status === 'success' ? '✅ Success' : '❌ Error'}</span></td>
             <td style="max-width:200px;font-size:12px;color:var(--text-muted);" title="${escapeHtml(log.message)}">${escapeHtml(log.message || '—')}</td>
+            <td style="white-space:nowrap;">
+              ${log.groupId
+                ? `<a href="https://www.facebook.com/groups/${encodeURIComponent(log.groupId)}" target="_blank" rel="noopener noreferrer" class="btn btn-ghost btn-sm">🔗 Open</a>`
+                : '—'}
+            </td>
           </tr>
         `).join('')}
       </tbody>

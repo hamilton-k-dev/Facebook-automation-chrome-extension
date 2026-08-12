@@ -40,6 +40,7 @@ function renderGroups() {
         <div class="group-meta">
           ID: ${escapeHtml(g.id)}
           ${g.excluded ? ' • <span style="color:var(--danger)">Excluded</span>' : g.selected ? ' • <span style="color:var(--success)">Active</span>' : ' • <span style="color:var(--text-muted)">Inactive</span>'}
+          ${g.noPermission ? ' • <span style="color:var(--danger)">🚫 No posting rights</span>' : ''}
           ${g.postsToday ? ` • ${g.postsToday} post(s) today` : ''}
         </div>
       </div>
@@ -66,6 +67,7 @@ async function toggleGroup(id) {
   const g = allGroups.find(g => g.id === id);
   if (!g) return;
   g.selected = !g.selected;
+  if (g.selected) g.noPermission = false;
   await saveGroups(allGroups);
   renderGroups();
   showToast('success', g.selected ? 'Group activated' : 'Group deactivated', g.name);

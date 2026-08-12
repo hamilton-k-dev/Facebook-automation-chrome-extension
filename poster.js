@@ -5,9 +5,10 @@ import {
   incrementStats,
   recordGroupPost,
   getSettings,
+  updateGroupStatus,
 } from "./storage.js";
 import {
-  getEligibleGroup,
+  getEligibleGroups,
   getRandomContent,
   scheduleNextPost,
 } from "./scheduler.js";
@@ -155,7 +156,7 @@ function fbSwitchAccountScript(pageId, pageName, targetType) {
       const profileBtnSelectors = [
         // Top-right account menu
         '[aria-label="Account"]',
-        '[aria-label="Account"]',
+        '[aria-label="Compte"]',
         '[aria-label="Your account menu"]',
         // Fallback: profile avatar in the navigation bar
         'div[data-testid="royal_blue_bar"] img[alt]',
@@ -298,96 +299,176 @@ function fbSwitchAccountScript(pageId, pageName, targetType) {
 }
 
 // ─── Posting script ─────────────────────────────────────────────────────────
-
-function isElementVisible(el) {
-  if (!el) return false;
-  const style = window.getComputedStyle(el);
-  if (
-    !style ||
-    style.display === "none" ||
-    style.visibility === "hidden" ||
-    style.opacity === "0"
-  )
-    return false;
-  const rect = el.getBoundingClientRect();
-  return rect.width > 0 && rect.height > 0;
-}
-
-function findVisibleElement(selectors, root = document) {
-  for (const sel of selectors) {
-    const elements = [...root.querySelectorAll(sel)];
-    const visible = elements.find(isElementVisible);
-    if (visible) return visible;
-  }
-  return null;
-}
-
-function findComposerTrigger() {
-  const textHints = [
-    "create a post",
-    "write something",
-    "what's on your mind",
-    "écrire quelque chose",
-    "créer une publication",
-    "publier",
-    "new post",
-    "make a post",
-    "start a post",
-  ];
-
-  const candidates = [
-    ...document.querySelectorAll(
-      'div[role="button"], button, a, [role="link"]',
-    ),
-  ];
-  const matched = candidates.find((el) => {
-    if (!isElementVisible(el)) return false;
-    const label =
-      `${el.getAttribute("aria-label") || ""} ${el.getAttribute("title") || ""} ${el.textContent || ""}`.toLowerCase();
-    return textHints.some((hint) => label.includes(hint));
-  });
-
-  if (matched) return matched;
-
-  return findVisibleElement([
-    '[data-pagelet="GroupInlineComposer"] [role="button"]',
-    '[aria-label="Create a post"]',
-    '[aria-label="Écrire quelque chose..."]',
-    '[aria-label="Write something..."]',
-    '[placeholder="Écrire quelque chose..."]',
-    '[placeholder="Write something..."]',
-    'div[data-testid="status-attachment-mentions-input"]',
-  ]);
-}
+//
+// NOTE: fbPostScript is injected into the Facebook tab via
+// chrome.scripting.executeScript({ func: fbPostScript }). Chrome only
+// serializes that single function's source into the target page — it does
+// NOT carry along any other top-level function/closure from this module.
+// Every helper it needs must therefore be declared *inside* fbPostScript.
 
 function fbPostScript(text, imageDataUrl) {
   return new Promise(async (resolve) => {
     try {
       const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
-      let composerTrigger = null;
-      for (let attempt = 0; attempt < 6; attempt += 1) {
-        composerTrigger = findComposerTrigger();
-        if (composerTrigger) break;
-        await sleep(1000);
+      function isElementVisible(el) {
+        if (!el) return false;
+        const style = window.getComputedStyle(el);
+        if (
+          !style ||
+          style.display === "none" ||
+          style.visibility === "hidden" ||
+          style.opacity === "0"
+        )
+          return false;
+        const rect = el.getBoundingClientRect();
+        return rect.width > 0 && rect.height > 0;
       }
 
-      if (!composerTrigger)
-        return resolve({ success: false, error: "Post composer not found" });
+      function findVisibleElement(selectors, root = document) {
+        for (const sel of selectors) {
+          const elements = [...root.querySelectorAll(sel)];
+          const visible = elements.find(isElementVisible);
+          if (visible) return visible;
+        }
+        return null;
+      }
 
-      composerTrigger.click();
-      await sleep(2000);
+      function findComposerTrigger() {
+        const textHints = [
+          "create a post",
+          "write something",
+          "what's on your mind",
+          "écrire quelque chose",
+          "créer une publication",
+          "créez une publication",
+          "exprimez-vous",
+          "publier",
+          "new post",
+          "make a post",
+          "start a post",
+        ];
 
-      let textField = null;
-      for (let attempt = 0; attempt < 6; attempt += 1) {
-        textField = findVisibleElement([
+        const candidates = [
+          ...document.querySelectorAll(
+            'div[role="button"], button, a, [role="link"]',
+          ),
+        ];
+        const matched = candidates.find((el) => {
+          if (!isElementVisible(el)) return false;
+          const label =
+            `${el.getAttribute("aria-label") || ""} ${el.getAttribute("title") || ""} ${el.textContent || ""}`.toLowerCase();
+          return textHints.some((hint) => label.includes(hint));
+        });
+
+        if (matched) return matched;
+
+        return findVisibleElement([
+          '[data-pagelet="GroupInlineComposer"] [role="button"]',
+          '[aria-label="Create a post"]',
+          '[aria-label="Écrire quelque chose..."]',
+          '[aria-label="Write something..."]',
+          '[placeholder="Écrire quelque chose..."]',
+          '[placeholder="Write something..."]',
+          'div[data-testid="status-attachment-mentions-input"]',
+        ]);
+      }
+
+      function findTextField() {
+        // On some layouts the post box is already an open, editable field —
+        // no trigger button to click first. Check for that directly.
+        const direct = findVisibleElement([
           '[role="textbox"][contenteditable="true"]',
           '[aria-label="Écrire quelque chose..."]',
           '[aria-label="Write something..."]',
           '[data-testid="status-attachment-mentions-input"]',
         ]);
+        if (direct) return direct;
+
+        // Match by aria-placeholder, which Facebook's Lexical-based composer
+        // uses instead of aria-label (e.g. "Créez une publication publique...").
+        const placeholderHints = [
+          "écrire quelque chose",
+          "what's on your mind",
+          "créez une publication",
+          "créer une publication",
+          "write something",
+          "create a public post",
+          "create a post",
+        ];
+        const candidates = [
+          ...document.querySelectorAll(
+            '[contenteditable="true"][role="textbox"], [aria-placeholder]',
+          ),
+        ];
+        return (
+          candidates.find((el) => {
+            if (!isElementVisible(el)) return false;
+            const hint = (el.getAttribute("aria-placeholder") || "").toLowerCase();
+            return placeholderHints.some((h) => hint.includes(h));
+          }) || null
+        );
+      }
+
+      function findPublishButton() {
+        // Exact-match hints (avoids matching unrelated buttons whose text
+        // merely *contains* one of these words, e.g. "Boost post").
+        const exactHints = ["publier", "publish", "post", "poster"];
+
+        const candidates = [
+          ...document.querySelectorAll(
+            'div[role="button"], button, [role="button"]',
+          ),
+        ];
+        const matched = candidates.find((el) => {
+          if (!isElementVisible(el)) return false;
+          if (el.disabled || el.getAttribute("aria-disabled") === "true")
+            return false;
+          const label = (el.getAttribute("aria-label") || el.textContent || "")
+            .trim()
+            .toLowerCase();
+          return exactHints.includes(label);
+        });
+
+        if (matched) return matched;
+
+        return findVisibleElement([
+          '[aria-label="Publish"]',
+          '[aria-label="Publier"]',
+          '[aria-label="Post"]',
+          '[data-testid="react-composer-post-button"]',
+          'button[type="submit"]',
+        ]);
+      }
+
+      // The post box may already be open and editable (no trigger to click),
+      // so look for it directly before trying to find/click a trigger button.
+      let textField = null;
+      for (let attempt = 0; attempt < 4; attempt += 1) {
+        textField = findTextField();
         if (textField) break;
         await sleep(1000);
+      }
+
+      if (!textField) {
+        let composerTrigger = null;
+        for (let attempt = 0; attempt < 6; attempt += 1) {
+          composerTrigger = findComposerTrigger();
+          if (composerTrigger) break;
+          await sleep(1000);
+        }
+
+        if (!composerTrigger)
+          return resolve({ success: false, error: "Post composer not found" });
+
+        composerTrigger.click();
+        await sleep(2000);
+
+        for (let attempt = 0; attempt < 6; attempt += 1) {
+          textField = findTextField();
+          if (textField) break;
+          await sleep(1000);
+        }
       }
 
       if (!textField)
@@ -446,28 +527,20 @@ function fbPostScript(text, imageDataUrl) {
 
       // Click the Publish button
       await sleep(1000);
-      const publishSelectors = [
-        '[aria-label="Publish"]',
-        '[aria-label="Post"]',
-        '[data-testid="react-composer-post-button"]',
-        'button[type="submit"]',
-      ];
-
-      let published = false;
-      for (const sel of publishSelectors) {
-        const btn = document.querySelector(sel);
-        if (btn && !btn.disabled) {
-          btn.click();
-          published = true;
-          break;
-        }
+      let publishBtn = null;
+      for (let attempt = 0; attempt < 5; attempt += 1) {
+        publishBtn = findPublishButton();
+        if (publishBtn) break;
+        await sleep(800);
       }
 
-      if (!published)
+      if (!publishBtn)
         return resolve({
           success: false,
           error: "Publish button not found or disabled",
         });
+
+      publishBtn.click();
 
       await sleep(3000);
       resolve({ success: true });
@@ -478,6 +551,11 @@ function fbPostScript(text, imageDataUrl) {
 }
 
 // ─── Auto-post orchestration ─────────────────────────────────────────────────
+
+// A group without posting rights shows no way to open the composer at all —
+// this is the one error we can reliably attribute to a permissions issue
+// rather than a transient page/UI glitch.
+const NO_PERMISSION_ERROR = "Post composer not found";
 
 export async function runAutoPost() {
   const settings = await getSettings();
@@ -490,15 +568,39 @@ export async function runAutoPost() {
     return { skipped: true, reason: "Hors plage horaire" };
   }
 
-  const group = await getEligibleGroup(settings);
-  if (!group) return { skipped: true, reason: "No eligible group" };
+  const groups = await getEligibleGroups(settings);
+  if (groups.length === 0) return { skipped: true, reason: "No eligible group" };
 
-  const content = await getRandomContent(group.id, settings);
-  if (!content) return { skipped: true, reason: "No content available" };
+  let lastResult = { success: false, error: "No content available" };
 
-  const result = await publishToGroup(group, content);
+  for (const group of groups) {
+    const content = await getRandomContent(group.id, settings);
+    if (!content) continue;
+
+    const result = await publishToGroup(group, content);
+    lastResult = result;
+
+    if (result.success) break;
+
+    if (result.error === NO_PERMISSION_ERROR) {
+      await updateGroupStatus(group.id, {
+        noPermission: true,
+        selected: false,
+      });
+      await addLog({
+        group: group.name,
+        groupId: group.id,
+        content: "",
+        contentId: null,
+        status: "error",
+        message: "Deactivated: no posting rights in this group",
+      });
+    }
+    // Any failure (permission or otherwise) moves on to the next eligible group.
+  }
+
   await scheduleNextPost();
-  return result;
+  return lastResult;
 }
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────

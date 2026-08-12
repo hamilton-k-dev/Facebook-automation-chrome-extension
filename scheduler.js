@@ -49,7 +49,9 @@ async function computeNextPostTime(settings, from) {
   return candidate;
 }
 
-export async function getEligibleGroup(settings) {
+// Returns every eligible group, shuffled — used to try groups one after
+// another (e.g. skip to the next one when a post fails).
+export async function getEligibleGroups(settings) {
   const groups = await getGroups();
   const activeGroups = groups.filter(g => g.selected && !g.excluded);
 
@@ -61,8 +63,16 @@ export async function getEligibleGroup(settings) {
     }
   }
 
-  if (eligible.length === 0) return null;
-  return eligible[Math.floor(Math.random() * eligible.length)];
+  for (let i = eligible.length - 1; i > 0; i -= 1) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [eligible[i], eligible[j]] = [eligible[j], eligible[i]];
+  }
+  return eligible;
+}
+
+export async function getEligibleGroup(settings) {
+  const eligible = await getEligibleGroups(settings);
+  return eligible.length > 0 ? eligible[0] : null;
 }
 
 export async function getRandomContent(groupId, settings) {
