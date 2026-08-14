@@ -508,10 +508,13 @@ function fbPostScript(text, imageDataUrl) {
 
       // Attach image if provided
       if (imageDataUrl) {
+        // The "i" flag makes attribute matching case-insensitive — Facebook's
+        // aria-label casing for this button varies ("Photo/Vidéo" vs
+        // "Photo/vidéo") depending on the page/composer variant.
         const photoSelectors = [
-          '[aria-label="Photo/vidéo"]',
-          '[aria-label="Photo/Video"]',
-          '[aria-label="Photo"]',
+          '[aria-label="Photo/vidéo" i]',
+          '[aria-label="Photo/Video" i]',
+          '[aria-label="Photo" i]',
           '[data-testid="photo-selector"]',
         ];
         for (const sel of photoSelectors) {

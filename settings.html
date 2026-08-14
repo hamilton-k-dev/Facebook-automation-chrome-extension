@@ -133,6 +133,21 @@
         <div id="settingsPreview" style="font-size:14px;line-height:2;"></div>
       </div>
 
+      <!-- Backup -->
+      <div class="card mt-4">
+        <div class="card-header">
+          <span class="card-title">💾 Backup</span>
+        </div>
+        <div class="text-sm text-muted mb-2">
+          Export your contents, groups, and settings to a file — restore them anytime, even after removing and re-loading the extension.
+        </div>
+        <div style="display:flex;gap:12px;flex-wrap:wrap;">
+          <button class="btn btn-ghost" id="btnExportData">📤 Export data</button>
+          <button class="btn btn-ghost" id="btnImportData">📥 Import data</button>
+          <input type="file" id="importDataInput" accept="application/json" style="display:none;">
+        </div>
+      </div>
+
       <!-- Danger zone -->
       <div class="card mt-4" style="border-color:var(--danger);">
         <div class="card-header" style="border-color:var(--danger);">

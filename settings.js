@@ -1,4 +1,4 @@
-import { getSettings, saveSettings, DEFAULT_SETTINGS } from './storage.js';
+import { getSettings, saveSettings, DEFAULT_SETTINGS, getAll, importAll } from './storage.js';
 import { showToast, confirmDialog, initTheme, toggleTheme } from './ui.js';
 
 initTheme();
@@ -117,6 +117,38 @@ document.getElementById('btnClearHistory').addEventListener('click', async () =>
   if (!ok) return;
   await chrome.storage.local.set({ postHistory: {}, stats: null });
   showToast('success', 'History cleared', 'Post history has been reset.');
+});
+
+document.getElementById('btnExportData').addEventListener('click', async () => {
+  const data = await getAll();
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `fb-publisher-backup-${new Date().toISOString().split('T')[0]}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast('success', 'Export successful', 'Your data has been downloaded.');
+});
+
+const importDataInput = document.getElementById('importDataInput');
+document.getElementById('btnImportData').addEventListener('click', () => importDataInput.click());
+
+importDataInput.addEventListener('change', async (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+  try {
+    const data = JSON.parse(await file.text());
+    const ok = await confirmDialog('Import this backup? It will overwrite your current contents, groups, and settings.');
+    if (!ok) return;
+    await importAll(data);
+    showToast('success', 'Import successful', 'Data restored — reloading the page...');
+    setTimeout(() => location.reload(), 1200);
+  } catch (err) {
+    showToast('error', 'Import failed', 'This file is not a valid backup.');
+  } finally {
+    importDataInput.value = '';
+  }
 });
 
 document.getElementById('btnTheme').addEventListener('click', () => {

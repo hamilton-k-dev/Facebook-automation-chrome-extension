@@ -42,6 +42,12 @@ export async function getAll() {
   });
 }
 
+export async function importAll(data) {
+  return new Promise((resolve) => {
+    chrome.storage.local.set(data, resolve);
+  });
+}
+
 // Contents (max 5)
 export async function getContents() {
   const contents = await get(KEYS.CONTENTS);
