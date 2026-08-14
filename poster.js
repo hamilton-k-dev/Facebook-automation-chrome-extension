@@ -508,27 +508,37 @@ function fbPostScript(text, imageDataUrl) {
 
       // Attach image if provided
       if (imageDataUrl) {
-        // The "i" flag makes attribute matching case-insensitive — Facebook's
-        // aria-label casing for this button varies ("Photo/Vidéo" vs
-        // "Photo/vidéo") depending on the page/composer variant.
-        const photoSelectors = [
-          '[aria-label="Photo/vidéo" i]',
-          '[aria-label="Photo/Video" i]',
-          '[aria-label="Photo" i]',
-          '[data-testid="photo-selector"]',
-        ];
-        for (const sel of photoSelectors) {
-          const btn = document.querySelector(sel);
-          if (btn) {
-            btn.click();
-            await sleep(1500);
-            break;
+        const scope = document.querySelector('[role="dialog"]') || document;
+
+        // The file input is often already present in the DOM next to the
+        // "Photo/Vidéo" button, even before it's clicked — use it directly
+        // rather than clicking the button, which would just as likely
+        // trigger the native OS file picker (which we can't drive from here
+        // and could interfere with setting .files programmatically).
+        let fileInput = scope.querySelector('input[type="file"][accept*="image"]');
+
+        if (!fileInput) {
+          // Fallback: some layouts only mount the input once the button is clicked.
+          // The "i" flag makes attribute matching case-insensitive — Facebook's
+          // aria-label casing for this button varies ("Photo/Vidéo" vs
+          // "Photo/vidéo") depending on the page/composer variant.
+          const photoSelectors = [
+            '[aria-label="Photo/vidéo" i]',
+            '[aria-label="Photo/Video" i]',
+            '[aria-label="Photo" i]',
+            '[data-testid="photo-selector"]',
+          ];
+          for (const sel of photoSelectors) {
+            const btn = scope.querySelector(sel);
+            if (btn) {
+              btn.click();
+              await sleep(1500);
+              break;
+            }
           }
+          fileInput = document.querySelector('input[type="file"][accept*="image"]');
         }
 
-        const fileInput = document.querySelector(
-          'input[type="file"][accept*="image"]',
-        );
         if (fileInput) {
           const res = await fetch(imageDataUrl);
           const blob = await res.blob();
@@ -537,7 +547,8 @@ function fbPostScript(text, imageDataUrl) {
           dt.items.add(file);
           fileInput.files = dt.files;
           fileInput.dispatchEvent(new Event("change", { bubbles: true }));
-          await sleep(3000);
+          fileInput.dispatchEvent(new Event("input", { bubbles: true }));
+          await sleep(4000);
         }
       }
 
