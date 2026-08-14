@@ -23,17 +23,13 @@ FB Group Auto Publisher is a Chrome extension that schedules and automatically s
 
 ## Screenshots
 
-| Popup | Dashboard |
+| Dashboard | Groups |
 | --- | --- |
-| ![Popup](assets/screenshots/popup.png) | ![Dashboard](assets/screenshots/dashboard.png) |
+| ![Dashboard](assets/screenshots/dashboard.png) | ![Groups](assets/screenshots/groups.png) |
 
-| Groups | Settings |
+| Settings | Contents |
 | --- | --- |
-| ![Groups](assets/screenshots/groups.png) | ![Settings](assets/screenshots/settings.png) |
-
-| Contents | Activity log |
-| --- | --- |
-| ![Contents](assets/screenshots/contents.png) | ![Logs](assets/screenshots/logs.png) |
+| ![Settings](assets/screenshots/settings.png) | ![Contents](assets/screenshots/contents.png) |
 
 ---
 

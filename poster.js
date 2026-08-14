@@ -375,10 +375,23 @@ function fbPostScript(text, imageDataUrl) {
       }
 
       function findTextField() {
-        // On some layouts the post box is already an open, editable field —
-        // no trigger button to click first. Check for that directly.
+        // A composer opened as a modal dialog is unambiguous — comment
+        // boxes in the feed are never rendered inside a dialog, so this
+        // can safely grab the *first* visible textbox found there.
+        const dialog = document.querySelector('[role="dialog"]');
+        if (dialog) {
+          const inDialog = findVisibleElement(
+            ['[role="textbox"][contenteditable="true"]'],
+            dialog,
+          );
+          if (inDialog) return inDialog;
+        }
+
+        // On some layouts the post box is already an open, editable field
+        // inline in the page (no trigger button to click first). Never use
+        // a *bare* contenteditable selector here without scope — it would
+        // just as easily match a comment box under a post in the feed.
         const direct = findVisibleElement([
-          '[role="textbox"][contenteditable="true"]',
           '[aria-label="Écrire quelque chose..."]',
           '[aria-label="Write something..."]',
           '[data-testid="status-attachment-mentions-input"]',
