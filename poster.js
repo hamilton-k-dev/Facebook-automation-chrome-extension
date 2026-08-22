@@ -334,6 +334,18 @@ function fbPostScript(text, imageDataUrl) {
         return null;
       }
 
+      function getComposerDialog() {
+        // Facebook can have other role="dialog" elements already mounted on
+        // the page (notification prompts, chat widgets, etc.) before our
+        // composer opens. A freshly opened modal is appended at the end of
+        // the DOM, so the *last* dialog is the reliable one to target —
+        // picking the first one risks grabbing an unrelated widget and then
+        // falling back to an unscoped, page-wide search that can match a
+        // comment box in the feed instead of the actual post composer.
+        const dialogs = document.querySelectorAll('[role="dialog"]');
+        return dialogs.length > 0 ? dialogs[dialogs.length - 1] : null;
+      }
+
       function findComposerTrigger() {
         const textHints = [
           "create a post",
@@ -378,7 +390,7 @@ function fbPostScript(text, imageDataUrl) {
         // A composer opened as a modal dialog is unambiguous — comment
         // boxes in the feed are never rendered inside a dialog, so this
         // can safely grab the *first* visible textbox found there.
-        const dialog = document.querySelector('[role="dialog"]');
+        const dialog = getComposerDialog();
         if (dialog) {
           const inDialog = findVisibleElement(
             ['[role="textbox"][contenteditable="true"]'],
@@ -508,7 +520,7 @@ function fbPostScript(text, imageDataUrl) {
 
       // Attach image if provided
       if (imageDataUrl) {
-        const scope = document.querySelector('[role="dialog"]') || document;
+        const scope = getComposerDialog() || document;
 
         // The file input is often already present in the DOM next to the
         // "Photo/Vidéo" button, even before it's clicked — use it directly
@@ -536,7 +548,7 @@ function fbPostScript(text, imageDataUrl) {
               break;
             }
           }
-          fileInput = document.querySelector('input[type="file"][accept*="image"]');
+          fileInput = scope.querySelector('input[type="file"][accept*="image"]');
         }
 
         if (fileInput) {
