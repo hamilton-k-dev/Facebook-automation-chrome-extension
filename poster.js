@@ -435,13 +435,13 @@ function fbPostScript(text, imageDataUrl) {
         );
       }
 
-      function findPublishButton() {
+      function findPublishButton(root = document) {
         // Exact-match hints (avoids matching unrelated buttons whose text
         // merely *contains* one of these words, e.g. "Boost post").
         const exactHints = ["publier", "publish", "post", "poster"];
 
         const candidates = [
-          ...document.querySelectorAll(
+          ...root.querySelectorAll(
             'div[role="button"], button, [role="button"]',
           ),
         ];
@@ -457,13 +457,16 @@ function fbPostScript(text, imageDataUrl) {
 
         if (matched) return matched;
 
-        return findVisibleElement([
-          '[aria-label="Publish"]',
-          '[aria-label="Publier"]',
-          '[aria-label="Post"]',
-          '[data-testid="react-composer-post-button"]',
-          'button[type="submit"]',
-        ]);
+        return findVisibleElement(
+          [
+            '[aria-label="Publish"]',
+            '[aria-label="Publier"]',
+            '[aria-label="Post"]',
+            '[data-testid="react-composer-post-button"]',
+            'button[type="submit"]',
+          ],
+          root,
+        );
       }
 
       // The post box may already be open and editable (no trigger to click),
@@ -499,6 +502,12 @@ function fbPostScript(text, imageDataUrl) {
       if (!textField)
         return resolve({ success: false, error: "Text field not found" });
 
+      // Capture the dialog once, here, and reuse it for the rest of the
+      // flow (image attach, publish button). Re-querying later risks
+      // matching a *different* dialog if some other role="dialog" element
+      // (picker, popup) appears in the meantime.
+      const composerDialog = getComposerDialog();
+
       textField.focus();
       await sleep(500);
 
@@ -520,14 +529,20 @@ function fbPostScript(text, imageDataUrl) {
 
       // Attach image if provided
       if (imageDataUrl) {
-        const scope = getComposerDialog() || document;
+        const scope = composerDialog || document;
 
         // The file input is often already present in the DOM next to the
         // "Photo/Vidéo" button, even before it's clicked — use it directly
         // rather than clicking the button, which would just as likely
         // trigger the native OS file picker (which we can't drive from here
         // and could interfere with setting .files programmatically).
-        let fileInput = scope.querySelector('input[type="file"][accept*="image"]');
+        // Retry: the modal may still be finishing its render at this point.
+        let fileInput = null;
+        for (let attempt = 0; attempt < 5; attempt += 1) {
+          fileInput = scope.querySelector('input[type="file"][accept*="image"]');
+          if (fileInput) break;
+          await sleep(500);
+        }
 
         if (!fileInput) {
           // Fallback: some layouts only mount the input once the button is clicked.
@@ -548,7 +563,11 @@ function fbPostScript(text, imageDataUrl) {
               break;
             }
           }
-          fileInput = scope.querySelector('input[type="file"][accept*="image"]');
+          for (let attempt = 0; attempt < 5; attempt += 1) {
+            fileInput = scope.querySelector('input[type="file"][accept*="image"]');
+            if (fileInput) break;
+            await sleep(500);
+          }
         }
 
         if (fileInput) {
@@ -568,7 +587,7 @@ function fbPostScript(text, imageDataUrl) {
       await sleep(1000);
       let publishBtn = null;
       for (let attempt = 0; attempt < 5; attempt += 1) {
-        publishBtn = findPublishButton();
+        publishBtn = findPublishButton(composerDialog || document);
         if (publishBtn) break;
         await sleep(800);
       }
